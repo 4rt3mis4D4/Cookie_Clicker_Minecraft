@@ -42,6 +42,8 @@ import com.example.minecraftclicker.viewmodel.AuthUiState
 import com.example.minecraftclicker.viewmodel.AuthViewModel
 import com.example.minecraftclicker.viewmodel.GameViewModel
 import com.example.minecraftclicker.viewmodel.RankingViewModel
+import com.example.minecraftclicker.ui.stats.StatsScreen
+import com.example.minecraftclicker.viewmodel.StatsViewModel
 
 @Composable
 fun App() {
@@ -126,7 +128,13 @@ fun App() {
                     modifier = contentModifier
                 )
             }
-            composable(Tab.STATS.route) { StatsScreen(modifier = contentModifier)
+            composable(Tab.STATS.route) {
+                val statsViewModel: StatsViewModel = viewModel()
+
+                StatsScreen(
+                    viewModel = statsViewModel,
+                    modifier = contentModifier
+                )
             }
             composable(Tab.ADMIN.route) {
                 if (authUiState.isAdmin) {
