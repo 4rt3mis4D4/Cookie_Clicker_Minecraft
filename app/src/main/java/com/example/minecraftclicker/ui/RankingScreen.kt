@@ -39,10 +39,7 @@ fun RankingScreen(
         viewModel.setCurrentPlayer(currentPlayer)
 
         currentPlayer?.let { jogador ->
-            viewModel.atualizarPontuacao(
-                player = jogador,
-                score = 1500L
-            )
+            viewModel.sincronizarPontuacao(jogador)
         }
     }
 

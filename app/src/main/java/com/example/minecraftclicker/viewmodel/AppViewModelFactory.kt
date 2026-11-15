@@ -37,7 +37,10 @@ class AppViewModelFactory(
                     firebaseAuth = FirebaseAuth.getInstance()
                 )
 
-                RankingViewModel(repository) as T
+                RankingViewModel(
+                    repository = repository,
+                    jogoRepository = app.jogoRepository
+                ) as T
             }
 
             modelClass.isAssignableFrom(UpgradesViewModel::class.java) -> {

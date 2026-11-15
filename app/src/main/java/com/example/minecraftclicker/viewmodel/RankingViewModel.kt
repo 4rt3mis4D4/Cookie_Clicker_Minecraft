@@ -3,9 +3,11 @@ package com.example.minecraftclicker.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.minecraftclicker.data.repository.JogoRepository
 import com.example.minecraftclicker.data.repository.RankingEntry
 import com.example.minecraftclicker.data.repository.RankingRepository
 import com.example.minecraftclicker.model.Player
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,11 +27,14 @@ data class RankingUiState(
 }
 
 class RankingViewModel(
-    private val repository: RankingRepository
+    private val repository: RankingRepository,
+    private val jogoRepository: JogoRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RankingUiState())
     val uiState: StateFlow<RankingUiState> = _uiState.asStateFlow()
+
+    private var sincronizacaoJob: Job? = null
 
     init {
         observarRanking()
@@ -37,17 +42,18 @@ class RankingViewModel(
 
     private fun observarRanking() {
         viewModelScope.launch {
-            repository.observarRanking().collect { ranking ->
-                _uiState.update {
-                    it.copy(
-                        ranking = ranking.sortedByDescending { jogador ->
-                            jogador.score
-                        },
-                        loading = false,
-                        errorMessage = null
-                    )
+            repository.observarRanking()
+                .collect { ranking ->
+                    _uiState.update {
+                        it.copy(
+                            ranking = ranking.sortedByDescending { jogador ->
+                                jogador.score
+                            },
+                            loading = false,
+                            errorMessage = null
+                        )
+                    }
                 }
-            }
         }
     }
 
@@ -57,15 +63,34 @@ class RankingViewModel(
         }
     }
 
-    fun atualizarPontuacao(player: Player, score: Long) {
-        viewModelScope.launch {
-            repository.atualizarPontuacao(player, score)
-                .onFailure { error ->
-                    _uiState.update {
-                        it.copy(
-                            errorMessage = error.message
-                                ?: "Não foi possível atualizar a pontuação"
-                        )
+    fun sincronizarPontuacao(player: Player) {
+        sincronizacaoJob?.cancel()
+
+        sincronizacaoJob = viewModelScope.launch {
+            jogoRepository.observarProgresso(player.id)
+                .collect { resultado ->
+
+                    resultado.onSuccess { progresso ->
+                        if (progresso != null) {
+                            repository.atualizarPontuacao(
+                                player = player,
+                                score = progresso.dinheiroTotalGanho
+                            ).onFailure { error ->
+                                _uiState.update {
+                                    it.copy(
+                                        errorMessage = error.message
+                                            ?: "Não foi possível atualizar a pontuação."
+                                    )
+                                }
+                            }
+                        }
+                    }.onFailure { error ->
+                        _uiState.update {
+                            it.copy(
+                                errorMessage = error.message
+                                    ?: "Não foi possível consultar o progresso."
+                            )
+                        }
                     }
                 }
         }
