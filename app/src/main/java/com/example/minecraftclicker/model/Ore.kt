@@ -14,6 +14,7 @@ data class Ore(
     val value: Long = 0,
     val rarity: Rarity = Rarity.COMMON,
     val chance: Double = 0.0,
+    val icon: String = "",
     val maxHealth: Int = 5
 )
 
