@@ -37,6 +37,13 @@ fun RankingScreen(
 
     LaunchedEffect(currentPlayer?.id) {
         viewModel.setCurrentPlayer(currentPlayer)
+
+        currentPlayer?.let { jogador ->
+            viewModel.atualizarPontuacao(
+                player = jogador,
+                score = 1500L
+            )
+        }
     }
 
     Column(

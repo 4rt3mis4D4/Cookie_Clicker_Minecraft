@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.minecraftclicker.MinecraftClickerApplication
 import com.example.minecraftclicker.data.repository.RankingRepository
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 
 class AppViewModelFactory(
     private val app: MinecraftClickerApplication
@@ -14,12 +16,18 @@ class AppViewModelFactory(
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
         return when {
+
             modelClass.isAssignableFrom(AuthViewModel::class.java) -> {
                 AuthViewModel(app.userRepository) as T
             }
 
             modelClass.isAssignableFrom(RankingViewModel::class.java) -> {
-                RankingViewModel(RankingRepository()) as T
+                val repository = RankingRepository(
+                    firestore = FirebaseFirestore.getInstance(),
+                    firebaseAuth = FirebaseAuth.getInstance()
+                )
+
+                RankingViewModel(repository) as T
             }
 
             else -> {

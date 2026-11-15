@@ -2,10 +2,14 @@
 package com.example.minecraftclicker.data.repository
 
 import com.example.minecraftclicker.model.Player
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.SetOptions
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 
 data class RankingEntry(
     val playerId: String = "",
@@ -13,55 +17,88 @@ data class RankingEntry(
     val score: Long = 0L
 )
 
-class RankingRepository {
+class RankingRepository(
+    private val firestore: FirebaseFirestore,
+    private val firebaseAuth: FirebaseAuth
+) {
 
-    private val ranking = MutableStateFlow(
-        listOf(
-            RankingEntry("1", "Steve", 15000L),
-            RankingEntry("2", "Alex", 12000L),
-            RankingEntry("3", "Herobrine", 9500L),
-            RankingEntry("4", "Notch", 8000L),
-            RankingEntry("5", "Creeper", 6500L),
-            RankingEntry("6", "Enderman", 5000L),
-            RankingEntry("7", "Miner", 3500L),
-            RankingEntry("8", "Builder", 2000L),
-            RankingEntry("9", "Explorer", 1000L),
-            RankingEntry("10", "CraftMaster", 500L)
-        )
-    )
+    private val rankingCollection =
+        firestore.collection("ranking")
 
-    fun observarRanking(): Flow<List<RankingEntry>> =
-        ranking.asStateFlow()
+    fun observarRanking(): Flow<List<RankingEntry>> = callbackFlow {
+
+        val listener = rankingCollection
+            .orderBy("score", Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, error ->
+
+                if (error != null) {
+                    close(error)
+                    return@addSnapshotListener
+                }
+
+                val jogadores = snapshot?.documents?.map { document ->
+                    RankingEntry(
+                        playerId = document.getLong("localPlayerId")?.toString() ?: "",
+                        playerName = document.getString("playerName") ?: "",
+                        score = document.getLong("score") ?: 0L
+                    )
+                } ?: emptyList()
+
+                trySend(jogadores)
+            }
+
+        awaitClose {
+            listener.remove()
+        }
+    }
+
+    suspend fun obterIdentificadorJogador(player: Player): String {
+        val uid = obterUid()
+
+        return "${uid}_${player.id}"
+    }
 
     suspend fun atualizarPontuacao(
         player: Player,
         score: Long
     ): Result<Unit> {
-        ranking.update { jogadores ->
-            val jogadorExistente = jogadores.any {
-                it.playerId == player.id.toString()
-            }
 
-            if (jogadorExistente) {
-                jogadores.map {
-                    if (it.playerId == player.id.toString()) {
-                        it.copy(
-                            playerName = player.name,
-                            score = score
-                        )
-                    } else {
-                        it
-                    }
-                }
-            } else {
-                jogadores + RankingEntry(
-                    playerId = player.id.toString(),
-                    playerName = player.name,
-                    score = score
-                )
-            }
+        return try {
+            val uid = obterUid()
+            val documentId = "${uid}_${player.id}"
+
+            val dados = mapOf(
+                "ownerUid" to uid,
+                "localPlayerId" to player.id,
+                "playerName" to player.name,
+                "score" to score,
+                "updatedAt" to System.currentTimeMillis()
+            )
+
+            rankingCollection
+                .document(documentId)
+                .set(dados, SetOptions.merge())
+                .await()
+
+            Result.success(Unit)
+
+        } catch (e: Exception) {
+            Result.failure(e)
         }
+    }
 
-        return Result.success(Unit)
+    private suspend fun obterUid(): String {
+        val usuarioAtual = firebaseAuth.currentUser
+
+        return if (usuarioAtual != null) {
+            usuarioAtual.uid
+        } else {
+            firebaseAuth.signInAnonymously()
+                .await()
+                .user?.uid
+                ?: throw IllegalStateException(
+                    "Não foi possível autenticar o jogador."
+                )
+        }
     }
 }
