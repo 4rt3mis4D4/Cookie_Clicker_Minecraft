@@ -10,14 +10,16 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 @Database(
     entities = [
         User::class,
+        UpgradeEntity::class,
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
     abstract fun userDao(): UserDao
+    abstract fun upgradeDao(): UpgradeDao
 
     companion object {
         @Volatile

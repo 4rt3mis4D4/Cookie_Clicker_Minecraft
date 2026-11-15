@@ -16,6 +16,10 @@ class MinecraftClickerApplication : Application() {
         UserRepository(database.userDao())
     }
 
+    val upgradeDao by lazy {
+        database.upgradeDao()
+    }
+
     override fun onCreate() {
         super.onCreate()
 
