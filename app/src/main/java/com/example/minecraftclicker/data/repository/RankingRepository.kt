@@ -38,10 +38,11 @@ class RankingRepository(
 
                 val jogadores = snapshot?.documents?.map { document ->
                     RankingEntry(
-                        playerId = document.getLong("localPlayerId")?.toString() ?: "",
+                        playerId = document.id,
                         playerName = document.getString("playerName") ?: "",
                         score = document.getLong("score") ?: 0L
                     )
+
                 } ?: emptyList()
 
                 trySend(jogadores)

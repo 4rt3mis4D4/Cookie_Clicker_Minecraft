@@ -109,7 +109,7 @@ fun RankingScreen(
                 ) {
                     itemsIndexed(top10) { index, player ->
                         val isCurrentPlayer =
-                            player.playerId == currentPlayer?.id?.toString()
+                            player.playerId == uiState.currentPlayerDocumentId
 
                         Card(
                             modifier = Modifier.fillMaxWidth(),

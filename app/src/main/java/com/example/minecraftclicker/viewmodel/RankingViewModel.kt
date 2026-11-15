@@ -18,12 +18,14 @@ data class RankingUiState(
     val ranking: List<RankingEntry> = emptyList(),
     val loading: Boolean = true,
     val errorMessage: String? = null,
-    val currentPlayerId: Int? = null
+    val currentPlayerDocumentId: String? = null
 ) {
     val currentPlayerPosition: Int?
         get() = ranking.indexOfFirst {
-            it.playerId == currentPlayerId?.toString()
-        }.takeIf { it >= 0 }?.plus(1)
+            it.playerId == currentPlayerDocumentId
+        }
+            .takeIf { it >= 0 }
+            ?.plus(1)
 }
 
 class RankingViewModel(
@@ -58,8 +60,29 @@ class RankingViewModel(
     }
 
     fun setCurrentPlayer(player: Player?) {
-        _uiState.update {
-            it.copy(currentPlayerId = player?.id)
+        if (player == null) {
+            _uiState.update {
+                it.copy(currentPlayerDocumentId = null)
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            try {
+                val documentId =
+                    repository.obterIdentificadorJogador(player)
+
+                _uiState.update {
+                    it.copy(currentPlayerDocumentId = documentId)
+                }
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        errorMessage = e.message
+                            ?: "Não foi possível identificar o jogador."
+                    )
+                }
+            }
         }
     }
 
