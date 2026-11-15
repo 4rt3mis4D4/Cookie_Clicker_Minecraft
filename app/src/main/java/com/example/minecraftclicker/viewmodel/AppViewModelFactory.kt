@@ -44,6 +44,15 @@ class AppViewModelFactory(
                 UpgradesViewModel(app.upgradeRepository, app.jogoRepository) as T
             }
 
+            modelClass.isAssignableFrom(StatsViewModel::class.java) -> {
+                StatsViewModel(
+                    repository = app.statsRepository,
+                    jogadorId = checkNotNull(jogadorId) {
+                        "Jogador não informado"
+                    }
+                ) as T
+            }
+
             else -> {
                 throw IllegalArgumentException(
                     "Unknown ViewModel: ${modelClass.name}"

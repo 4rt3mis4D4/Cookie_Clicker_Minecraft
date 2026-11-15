@@ -18,6 +18,12 @@ interface HistoricoMineracaoDao {
     suspend fun inserir(historico: HistoricoMineracao)
 
     @Query("""
+    SELECT * FROM historico_mineracao
+    WHERE jogadorId = :jogadorId
+""")
+    fun observarTodos(jogadorId: Int): Flow<List<HistoricoMineracao>>
+
+    @Query("""
         SELECT
             minerioId,
             minerioNome,

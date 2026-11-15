@@ -9,6 +9,7 @@ import com.example.minecraftclicker.data.repository.JogoRepository
 import com.example.minecraftclicker.data.repository.MinerioRepository
 import com.google.firebase.FirebaseApp
 import com.google.firebase.firestore.FirebaseFirestore
+import com.example.minecraftclicker.data.repository.StatsRepository
 
 class MinecraftClickerApplication : Application() {
 
@@ -34,6 +35,10 @@ class MinecraftClickerApplication : Application() {
 
     val upgradeRepository by lazy {
         UpgradeRepository(upgradeDao)
+    }
+
+    val statsRepository by lazy {
+        StatsRepository(database)
     }
 
     override fun onCreate() {

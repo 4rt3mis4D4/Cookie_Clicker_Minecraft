@@ -138,12 +138,22 @@ fun App() {
                 )
             }
             composable(Tab.STATS.route) {
-                val statsViewModel: StatsViewModel = viewModel()
+                authUiState.currentPlayer?.let { jogador ->
 
-                StatsScreen(
-                    viewModel = statsViewModel,
-                    modifier = contentModifier
-                )
+                    val statsFactory = remember(app, jogador.id) {
+                        AppViewModelFactory(app, jogador.id)
+                    }
+
+                    val statsViewModel: StatsViewModel = viewModel(
+                        key = "stats-${jogador.id}",
+                        factory = statsFactory
+                    )
+
+                    StatsScreen(
+                        viewModel = statsViewModel,
+                        modifier = contentModifier
+                    )
+                }
             }
             composable(Tab.ADMIN.route) {
                 if (authUiState.isAdmin) {
