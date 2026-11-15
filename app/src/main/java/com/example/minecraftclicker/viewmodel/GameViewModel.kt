@@ -9,6 +9,7 @@ import com.example.minecraftclicker.data.repository.MiningDrop
 import com.example.minecraftclicker.data.repository.UpgradeRepository
 import com.example.minecraftclicker.model.DEFAULT_ORES
 import com.example.minecraftclicker.model.MiningBonuses
+import com.example.minecraftclicker.model.Ore
 import com.example.minecraftclicker.model.drawOre
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -23,8 +24,16 @@ data class GameUiState(
     val loading: Boolean = true,
     val salvando: Boolean = false,
     val erro: String? = null,
-    val avisoCatalogo: String? = null
-)
+    val avisoCatalogo: String? = null,
+    val catalog: List<Ore> = DEFAULT_ORES
+) {
+    val currentBlockKey: String
+        get() {
+            val oreId = progresso?.minerioId.orEmpty()
+            val ore = catalog.firstOrNull { it.id == oreId } ?: return oreId
+            return ore.icon.ifBlank { ore.id }
+        }
+}
 
 class GameViewModel(
     private val jogoRepository: JogoRepository,
@@ -46,10 +55,10 @@ class GameViewModel(
                             it.value >= 0 && it.maxHealth > 0
                     }
                     minerios = disponiveis.ifEmpty { DEFAULT_ORES }
-                    _uiState.update { it.copy(avisoCatalogo = null) }
+                    _uiState.update { it.copy(avisoCatalogo = null, catalog = minerios) }
                 }.onFailure { error ->
                     minerios = DEFAULT_ORES
-                    _uiState.update { it.copy(avisoCatalogo = error.message) }
+                    _uiState.update { it.copy(avisoCatalogo = error.message, catalog = minerios) }
                 }
             }
         }
