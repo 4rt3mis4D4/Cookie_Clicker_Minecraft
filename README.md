@@ -8,8 +8,6 @@ Desenvolvido em **Kotlin + Jetpack Compose**, com arquitetura **MVVM**, persist�
 ## 📹 Vídeo de demonstração
 
 > 🎬 **[Assistir à demonstração no Google Drive](https://drive.google.com/file/d/1TeNI_4i-PJXeUYqp75NUuV7PoPhjN2Kk/view?usp=sharing)**
->
-> Também disponível no repositório: [`video_demonstrativo.webm`](documentacao/video_demonstrativo.webm)
 
 ---
 
