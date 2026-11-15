@@ -45,9 +45,4 @@ class UpgradeRepository(
             upgradeDao.insert(updated)
             updated
         }
-
-    suspend fun saveUpgrade(upgrade: UpgradeEntity): Result<Unit> =
-        safeCall("Falha ao salvar upgrade") {
-            upgradeDao.insert(upgrade)
-        }
 }

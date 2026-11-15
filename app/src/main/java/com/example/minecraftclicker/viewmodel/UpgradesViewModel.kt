@@ -15,10 +15,8 @@ import kotlinx.coroutines.launch
 
 data class UpgradesUiState(
     val upgrades: List<UpgradeItem> = emptyList(),
-    val coins: Long = 500L, // Saldo inicial para testes
+    val coins: Long = 0L,
     val loading: Boolean = true,
-    val feedbackMessage: String? = null,
-    val errorMessage: String? = null,
     val currentPlayerId: Int? = null
 )
 
@@ -27,7 +25,6 @@ class UpgradesViewModel(
 ) : ViewModel() {
 
     companion object {
-        // Tiers da Picareta: Madeira -> Pedra -> Metal -> Diamante -> Netherita
         val PICKAXE_TIERS = listOf("Madeira", "Pedra", "Metal", "Diamante", "Netherita")
         val PICKAXE_COSTS = listOf(50L, 200L, 800L, 3000L)
         val PICKAXE_EFFECTS = listOf(
@@ -38,7 +35,6 @@ class UpgradesViewModel(
             "100 de dano por clique (Máximo)"
         )
 
-        // Tiers de Sorte: Básica até Sorte IV
         val LUCK_TIERS = listOf("Básica", "Sorte I", "Sorte II", "Sorte III", "Sorte IV")
         val LUCK_COSTS = listOf(100L, 350L, 1000L, 2500L)
         val LUCK_EFFECTS = listOf(
@@ -49,7 +45,6 @@ class UpgradesViewModel(
             "+25% de chance de minérios raros (Máximo)"
         )
 
-        // Tiers de Fortuna: Fortuna I até Fortuna III (máximo do Minecraft)
         val FORTUNE_TIERS = listOf("Fortuna I", "Fortuna II", "Fortuna III")
         val FORTUNE_COSTS = listOf(500L, 2000L)
         val FORTUNE_EFFECTS = listOf(
@@ -88,13 +83,7 @@ class UpgradesViewModel(
         val playerId = currentState.currentPlayerId ?: return
         val item = currentState.upgrades.find { it.type == type } ?: return
 
-        if (item.isMaxLevel) {
-            _uiState.update { it.copy(feedbackMessage = "${type.displayName} já está no nível máximo!") }
-            return
-        }
-
-        if (currentState.coins < item.nextLevelCost) {
-            _uiState.update { it.copy(errorMessage = "Moedas insuficientes para melhorar ${type.displayName}!") }
+        if (item.isMaxLevel || currentState.coins < item.nextLevelCost) {
             return
         }
 
@@ -104,34 +93,16 @@ class UpgradesViewModel(
             repository.incrementLevel(playerId, type)
                 .onSuccess {
                     _uiState.update { state ->
-                        state.copy(
-                            coins = state.coins - cost,
-                            feedbackMessage = "Parabéns! ${type.displayName} melhorada para ${item.nextTierName ?: "próximo nível"}!",
-                            errorMessage = null
-                        )
-                    }
-                }
-                .onFailure { error ->
-                    _uiState.update {
-                        it.copy(
-                            errorMessage = error.message ?: "Erro ao comprar upgrade"
-                        )
+                        state.copy(coins = state.coins - cost)
                     }
                 }
         }
     }
 
-    fun adicionarMoedasTeste(quantidade: Long = 100L) {
-        _uiState.update {
-            it.copy(
-                coins = it.coins + quantidade,
-                feedbackMessage = "+$quantidade moedas de teste adicionadas!"
-            )
+    fun adicionarMoedasTeste(quantidade: Long = 200L) {
+        _uiState.update { state ->
+            state.copy(coins = state.coins + quantidade)
         }
-    }
-
-    fun limparMensagens() {
-        _uiState.update { it.copy(feedbackMessage = null, errorMessage = null) }
     }
 
     private fun buildUpgradeItems(entities: List<UpgradeEntity>): List<UpgradeItem> {

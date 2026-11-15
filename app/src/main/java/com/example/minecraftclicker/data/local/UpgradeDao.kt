@@ -1,11 +1,9 @@
 package com.example.minecraftclicker.data.local
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Update
 import com.example.minecraftclicker.model.UpgradeType
 import kotlinx.coroutines.flow.Flow
 
@@ -20,13 +18,4 @@ interface UpgradeDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(upgrade: UpgradeEntity): Long
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(upgrades: List<UpgradeEntity>)
-
-    @Update
-    suspend fun update(upgrade: UpgradeEntity)
-
-    @Delete
-    suspend fun delete(upgrade: UpgradeEntity)
 }
