@@ -41,7 +41,7 @@ class AppViewModelFactory(
             }
 
             modelClass.isAssignableFrom(UpgradesViewModel::class.java) -> {
-                UpgradesViewModel(app.upgradeRepository) as T
+                UpgradesViewModel(app.upgradeRepository, app.jogoRepository) as T
             }
 
             else -> {

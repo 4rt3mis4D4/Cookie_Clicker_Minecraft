@@ -26,13 +26,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.minecraftclicker.model.Player
 import com.example.minecraftclicker.model.UpgradeItem
 import com.example.minecraftclicker.model.UpgradeType
-import com.example.minecraftclicker.ui.theme.MinecraftClickerTheme
 import com.example.minecraftclicker.viewmodel.UpgradesUiState
 import com.example.minecraftclicker.viewmodel.UpgradesViewModel
 
@@ -273,50 +271,5 @@ fun UpgradeCard(
                 }
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun UpgradesPreview() {
-    MinecraftClickerTheme {
-        UpgradesContent(
-            uiState = UpgradesUiState(
-                coins = 350L,
-                loading = false,
-                upgrades = listOf(
-                    UpgradeItem(
-                        type = UpgradeType.PICKAXE,
-                        level = 1,
-                        maxLevel = 5,
-                        tierName = "Madeira",
-                        nextTierName = "Pedra",
-                        nextLevelCost = 50L,
-                        currentEffect = "1 de dano por clique",
-                        nextEffect = "3 de dano por clique"
-                    ),
-                    UpgradeItem(
-                        type = UpgradeType.LUCK,
-                        level = 2,
-                        maxLevel = 5,
-                        tierName = "Sorte I",
-                        nextTierName = "Sorte II",
-                        nextLevelCost = 350L,
-                        currentEffect = "+5% de chance de minérios raros",
-                        nextEffect = "+10% de chance de minérios raros"
-                    ),
-                    UpgradeItem(
-                        type = UpgradeType.FORTUNE,
-                        level = 1,
-                        maxLevel = 3,
-                        tierName = "Fortuna I",
-                        nextTierName = "Fortuna II",
-                        nextLevelCost = 500L,
-                        currentEffect = "1x moedas ao quebrar bloco",
-                        nextEffect = "2x moedas ao quebrar bloco"
-                    )
-                )
-            )
-        )
     }
 }
