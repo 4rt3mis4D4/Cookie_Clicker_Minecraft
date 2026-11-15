@@ -100,7 +100,7 @@ fun ClickerScreen(viewModel: GameViewModel, modifier: Modifier = Modifier) {
                         contentAlignment = Alignment.Center
                     ) {
                         Image(
-                            painter = painterResource(oreImage(progress.minerioId)),
+                            painter = painterResource(oreImage(state.currentBlockKey)),
                             contentDescription = "Bloco de ${progress.minerioNome}",
                             modifier = Modifier.size(160.dp)
                         )
@@ -170,7 +170,7 @@ private fun MiningBonus(title: String, value: String) {
 }
 
 @DrawableRes
-private fun oreImage(id: String): Int = when (id) {
+private fun oreImage(key: String): Int = when (key) {
     "coal" -> R.drawable.coal_ore
     "iron" -> R.drawable.iron_ore
     "gold" -> R.drawable.gold_ore
@@ -178,5 +178,5 @@ private fun oreImage(id: String): Int = when (id) {
     "lapis" -> R.drawable.lapis_ore
     "diamond" -> R.drawable.diamond_ore
     "emerald" -> R.drawable.emerald_ore
-    else -> R.drawable.cobblestone
+    else -> OreIcon.fromKey(key)?.res ?: R.drawable.cobblestone
 }
