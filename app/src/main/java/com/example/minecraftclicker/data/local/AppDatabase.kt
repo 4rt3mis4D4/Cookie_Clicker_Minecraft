@@ -99,15 +99,15 @@ abstract class AppDatabase : RoomDatabase() {
     }
 
     private object SeedAccounts : Callback() {
-        override fun onCreate(db: SupportSQLiteDatabase) {
-            super.onCreate(db)
+        override fun onOpen(db: SupportSQLiteDatabase) {
+            super.onOpen(db)
 
             db.execSQL(
-                "INSERT INTO users (name, password, role) VALUES ('admin', 'admin123', 'ADMIN')"
+                "INSERT OR IGNORE INTO users (name, password, role) VALUES ('admin', 'admin123', 'ADMIN')"
             )
 
             db.execSQL(
-                "INSERT INTO users (name, password, role) VALUES ('jogador', '1234', 'PLAYER')"
+                "INSERT OR IGNORE INTO users (name, password, role) VALUES ('jogador', '1234', 'PLAYER')"
             )
         }
     }
