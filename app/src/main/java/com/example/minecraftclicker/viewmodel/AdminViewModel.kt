@@ -26,6 +26,7 @@ data class OreFormState(
     val name: String = "",
     val value: String = "",
     val chance: String = "",
+    val maxHealth: String = "5",
     val rarity: Rarity = Rarity.COMMON,
     val icon: String = "",
     val submitAttempted: Boolean = false
@@ -48,6 +49,14 @@ data class OreFormState(
         get() {
             val c = parsedChance
             return submitAttempted && (c == null || c <= 0.0 || c > 100.0)
+        }
+
+    val parsedMaxHealth: Int? get() = maxHealth.toIntOrNull()
+
+    val maxHealthInvalid: Boolean
+        get() {
+            val h = parsedMaxHealth
+            return submitAttempted && (h == null || h <= 0)
         }
 }
 
@@ -128,6 +137,7 @@ class AdminViewModel(private val repository: OreRepository) : ViewModel() {
                     name = ore.name,
                     value = ore.value.toString(),
                     chance = ore.chance.toString(),
+                    maxHealth = ore.maxHealth.toString(),
                     rarity = ore.rarity,
                     icon = ore.icon
                 ),
@@ -149,6 +159,9 @@ class AdminViewModel(private val repository: OreRepository) : ViewModel() {
     fun updateChance(chance: String) =
         updateForm { it.copy(chance = chance.filter { c -> c.isDigit() || c == '.' || c == ',' }.take(6)) }
 
+    fun updateMaxHealth(maxHealth: String) =
+        updateForm { it.copy(maxHealth = maxHealth.filter(Char::isDigit).take(4)) }
+
     fun updateRarity(rarity: Rarity) = updateForm { it.copy(rarity = rarity) }
 
     fun updateIcon(icon: String) = updateForm { it.copy(icon = icon) }
@@ -169,8 +182,9 @@ class AdminViewModel(private val repository: OreRepository) : ViewModel() {
 
         val value = validated.parsedValue
         val chance = validated.parsedChance
+        val maxHealth = validated.parsedMaxHealth
         if (validated.nameInvalid || validated.valueInvalid || validated.chanceInvalid ||
-            value == null || chance == null
+            validated.maxHealthInvalid || value == null || chance == null || maxHealth == null
         ) return
 
         val name = validated.name.trim()
@@ -188,7 +202,8 @@ class AdminViewModel(private val repository: OreRepository) : ViewModel() {
             value = value,
             rarity = validated.rarity,
             chance = chance,
-            icon = validated.icon
+            icon = validated.icon,
+            maxHealth = maxHealth
         )
 
         _uiState.update { it.copy(saving = true, formError = null) }

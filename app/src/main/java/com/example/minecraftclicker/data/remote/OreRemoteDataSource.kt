@@ -52,7 +52,8 @@ private fun Ore.toMap(): Map<String, Any> = mapOf(
     "value" to value,
     "rarity" to rarity.name,
     "chance" to chance,
-    "icon" to icon
+    "icon" to icon,
+    "maxHealth" to maxHealth
 )
 
 private fun DocumentSnapshot.toOre(): Ore? {
@@ -66,6 +67,7 @@ private fun DocumentSnapshot.toOre(): Ore? {
         value = getLong("value") ?: 0L,
         rarity = rarity,
         chance = getDouble("chance") ?: 0.0,
-        icon = getString("icon").orEmpty()
+        icon = getString("icon").orEmpty(),
+        maxHealth = getLong("maxHealth")?.toInt() ?: 5
     )
 }

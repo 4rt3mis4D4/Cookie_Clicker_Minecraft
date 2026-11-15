@@ -108,6 +108,7 @@ fun AdminScreen(
             onNameChange = viewModel::updateName,
             onValueChange = viewModel::updateValue,
             onChanceChange = viewModel::updateChance,
+            onMaxHealthChange = viewModel::updateMaxHealth,
             onRarityChange = viewModel::updateRarity,
             onIconChange = viewModel::updateIcon,
             onSave = viewModel::saveForm,
@@ -264,7 +265,7 @@ private fun OreCard(ore: Ore, onEdit: () -> Unit, onDelete: () -> Unit) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(ore.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Text(
-                    "Valor: ${ore.value}  •  Chance: ${formatChance(ore.chance)}%",
+                    "Valor: ${ore.value}  •  Chance: ${formatChance(ore.chance)}%  •  Vida: ${ore.maxHealth}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -357,6 +358,7 @@ private fun OreFormDialog(
     onNameChange: (String) -> Unit,
     onValueChange: (String) -> Unit,
     onChanceChange: (String) -> Unit,
+    onMaxHealthChange: (String) -> Unit,
     onRarityChange: (Rarity) -> Unit,
     onIconChange: (String) -> Unit,
     onSave: () -> Unit,
@@ -402,6 +404,18 @@ private fun OreFormDialog(
                     isError = form.chanceInvalid,
                     supportingText = if (form.chanceInvalid) {
                         { Text("Informe um valor entre 0 e 100") }
+                    } else null,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = form.maxHealth,
+                    onValueChange = onMaxHealthChange,
+                    label = { Text("Vida do bloco") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    isError = form.maxHealthInvalid,
+                    supportingText = if (form.maxHealthInvalid) {
+                        { Text("Informe um valor maior que 0") }
                     } else null,
                     modifier = Modifier.fillMaxWidth()
                 )
