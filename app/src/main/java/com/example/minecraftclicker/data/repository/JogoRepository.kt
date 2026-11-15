@@ -6,7 +6,7 @@ import com.example.minecraftclicker.data.local.ProgressoJogador
 import com.example.minecraftclicker.data.local.novoProgresso
 import com.example.minecraftclicker.model.MiningBonuses
 import com.example.minecraftclicker.model.Ore
-
+import com.example.minecraftclicker.data.local.HistoricoMineracao
 data class MiningDrop(val name: String, val quantity: Int, val coins: Long)
 
 data class MiningResult(
@@ -16,6 +16,7 @@ data class MiningResult(
 
 class JogoRepository(private val database: AppDatabase) {
     private val dao = database.progressoJogadorDao()
+    private val historicoDao = database.historicoMineracaoDao()
 
     fun observarProgresso(jogadorId: Int) =
         dao.observar(jogadorId).withErrorHandling("Falha ao carregar progresso")
@@ -40,12 +41,29 @@ class JogoRepository(private val database: AppDatabase) {
             } else null
 
             val atualizado = if (drop == null) {
-                atual.copy(vidaAtual = vida, cliques = atual.cliques + 1)
+                atual.copy(
+                    vidaAtual = vida,
+                    cliques = atual.cliques + 1
+                )
             } else {
+
+                historicoDao.inserir(
+                    HistoricoMineracao(
+                        jogadorId = jogadorId,
+                        minerioId = atual.minerioId,
+                        minerioNome = atual.minerioNome,
+                        quantidade = drop.quantity.toLong()
+                    )
+                )
+
                 val ore = proximo()
+
                 atual.copy(
                     dinheiro = Math.addExact(atual.dinheiro, drop.coins),
-                    dinheiroTotalGanho = Math.addExact(atual.dinheiroTotalGanho, drop.coins),
+                    dinheiroTotalGanho = Math.addExact(
+                        atual.dinheiroTotalGanho,
+                        drop.coins
+                    ),
                     blocosQuebrados = atual.blocosQuebrados + 1,
                     cliques = atual.cliques + 1,
                     minerioId = ore.id,
