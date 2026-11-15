@@ -56,6 +56,10 @@ class AppViewModelFactory(
                 ) as T
             }
 
+            modelClass.isAssignableFrom(AdminViewModel::class.java) -> {
+                AdminViewModel(app.oreRepository) as T
+            }
+
             else -> {
                 throw IllegalArgumentException(
                     "Unknown ViewModel: ${modelClass.name}"

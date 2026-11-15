@@ -1,8 +1,9 @@
-
 package com.example.minecraftclicker
 
 import android.app.Application
 import com.example.minecraftclicker.data.local.AppDatabase
+import com.example.minecraftclicker.data.remote.OreRemoteDataSource
+import com.example.minecraftclicker.data.repository.OreRepository
 import com.example.minecraftclicker.data.repository.UpgradeRepository
 import com.example.minecraftclicker.data.repository.UserRepository
 import com.example.minecraftclicker.data.repository.JogoRepository
@@ -40,6 +41,8 @@ class MinecraftClickerApplication : Application() {
     val statsRepository by lazy {
         StatsRepository(database)
     }
+
+    val oreRepository by lazy { OreRepository(OreRemoteDataSource()) }
 
     override fun onCreate() {
         super.onCreate()
