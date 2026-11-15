@@ -13,8 +13,10 @@ navigationCompose = "2.10.2"
 room = "2.8.5"
 firebaseBom = "34.4.0"
 googleServices = "4.4.4"
+kotlinx-coroutines-play-services = "1.10.2"
 
 [libraries]
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "kotlinx-coroutines-play-services" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

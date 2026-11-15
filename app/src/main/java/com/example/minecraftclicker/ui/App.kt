@@ -40,6 +40,7 @@ import com.example.minecraftclicker.model.Tab
 import com.example.minecraftclicker.viewmodel.AppViewModelFactory
 import com.example.minecraftclicker.viewmodel.AuthUiState
 import com.example.minecraftclicker.viewmodel.AuthViewModel
+import com.example.minecraftclicker.viewmodel.RankingViewModel
 
 @Composable
 fun App() {
@@ -104,8 +105,17 @@ fun App() {
             }
             composable(Tab.CLICKER.route) { ClickerScreen(modifier = contentModifier) }
             composable(Tab.UPGRADES.route) { UpgradesScreen(modifier = contentModifier) }
-            composable(Tab.RANKING.route) { RankingScreen(modifier = contentModifier) }
-            composable(Tab.STATS.route) { StatsScreen(modifier = contentModifier) }
+            composable(Tab.RANKING.route) {
+                val rankingViewModel: RankingViewModel = viewModel(factory = factory)
+
+                RankingScreen(
+                    viewModel = rankingViewModel,
+                    currentPlayer = authUiState.currentPlayer,
+                    modifier = contentModifier
+                )
+            }
+            composable(Tab.STATS.route) { StatsScreen(modifier = contentModifier)
+            }
             composable(Tab.ADMIN.route) {
                 if (authUiState.isAdmin) {
                     AdminScreen(modifier = contentModifier)
