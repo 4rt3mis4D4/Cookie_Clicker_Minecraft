@@ -30,6 +30,10 @@ class AppViewModelFactory(
                 RankingViewModel(repository) as T
             }
 
+            modelClass.isAssignableFrom(UpgradesViewModel::class.java) -> {
+                UpgradesViewModel(app.upgradeRepository) as T
+            }
+
             else -> {
                 throw IllegalArgumentException(
                     "Unknown ViewModel: ${modelClass.name}"
