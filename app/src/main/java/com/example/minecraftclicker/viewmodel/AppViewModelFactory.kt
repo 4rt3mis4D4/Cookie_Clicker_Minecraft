@@ -9,13 +9,23 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 
 class AppViewModelFactory(
-    private val app: MinecraftClickerApplication
+    private val app: MinecraftClickerApplication,
+    private val jogadorId: Int? = null
 ) : ViewModelProvider.Factory {
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
 
         return when {
+
+            modelClass.isAssignableFrom(GameViewModel::class.java) -> {
+                GameViewModel(
+                    app.jogoRepository,
+                    app.upgradeRepository,
+                    app.minerioRepository,
+                    checkNotNull(jogadorId) { "Jogador não informado" }
+                ) as T
+            }
 
             modelClass.isAssignableFrom(AuthViewModel::class.java) -> {
                 AuthViewModel(app.userRepository) as T

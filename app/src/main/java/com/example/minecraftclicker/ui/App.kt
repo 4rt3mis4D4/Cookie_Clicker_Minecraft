@@ -40,6 +40,7 @@ import com.example.minecraftclicker.model.Tab
 import com.example.minecraftclicker.viewmodel.AppViewModelFactory
 import com.example.minecraftclicker.viewmodel.AuthUiState
 import com.example.minecraftclicker.viewmodel.AuthViewModel
+import com.example.minecraftclicker.viewmodel.GameViewModel
 import com.example.minecraftclicker.viewmodel.RankingViewModel
 
 @Composable
@@ -103,7 +104,18 @@ fun App() {
                     onBack = { navController.popBackStack() }
                 )
             }
-            composable(Tab.CLICKER.route) { ClickerScreen(modifier = contentModifier) }
+            composable(Tab.CLICKER.route) {
+                authUiState.currentPlayer?.let { jogador ->
+                    val gameFactory = remember(app, jogador.id) {
+                        AppViewModelFactory(app, jogador.id)
+                    }
+                    val gameViewModel: GameViewModel = viewModel(
+                        key = "game-${jogador.id}",
+                        factory = gameFactory
+                    )
+                    ClickerScreen(viewModel = gameViewModel, modifier = contentModifier)
+                }
+            }
             composable(Tab.UPGRADES.route) { UpgradesScreen(modifier = contentModifier) }
             composable(Tab.RANKING.route) {
                 val rankingViewModel: RankingViewModel = viewModel(factory = factory)

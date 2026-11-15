@@ -3,7 +3,9 @@ package com.example.minecraftclicker.data.repository
 import com.example.minecraftclicker.data.local.UpgradeDao
 import com.example.minecraftclicker.data.local.UpgradeEntity
 import com.example.minecraftclicker.model.UpgradeType
+import com.example.minecraftclicker.model.miningBonuses
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class UpgradeRepository(
     private val upgradeDao: UpgradeDao
@@ -12,6 +14,13 @@ class UpgradeRepository(
     fun observeUpgrades(playerId: Int): Flow<List<UpgradeEntity>> {
         return upgradeDao.getUpgradesForPlayer(playerId)
     }
+
+    fun observeMiningBonuses(playerId: Int) = observeUpgrades(playerId)
+        .map { upgrades ->
+            fun level(type: UpgradeType) = upgrades.firstOrNull { it.type == type }?.level ?: 1
+            miningBonuses(level(UpgradeType.PICKAXE), level(UpgradeType.LUCK), level(UpgradeType.FORTUNE))
+        }
+        .withErrorHandling("Falha ao carregar bônus dos upgrades")
 
     suspend fun getUpgrade(playerId: Int, type: UpgradeType): UpgradeEntity? {
         return upgradeDao.getUpgrade(playerId, type)
