@@ -4,6 +4,7 @@ import androidx.room.withTransaction
 import com.example.minecraftclicker.data.local.AppDatabase
 import com.example.minecraftclicker.data.local.ProgressoJogador
 import com.example.minecraftclicker.data.local.novoProgresso
+import com.example.minecraftclicker.model.DEFAULT_ORES
 import com.example.minecraftclicker.model.MiningBonuses
 import com.example.minecraftclicker.model.Ore
 import com.example.minecraftclicker.data.local.HistoricoMineracao
@@ -75,6 +76,34 @@ class JogoRepository(private val database: AppDatabase) {
             }
             dao.atualizar(atualizado)
             MiningResult(atualizado, drop)
+        }
+    }
+
+    suspend fun debitarDinheiro(jogadorId: Int, valor: Long): Result<Unit> = safeCall("Falha ao debitar moedas") {
+        database.withTransaction {
+            val atual = dao.buscar(jogadorId) ?: run {
+                val inicial = novoProgresso(jogadorId, DEFAULT_ORES.first())
+                dao.inserir(inicial)
+                inicial
+            }
+            require(atual.dinheiro >= valor) { "Saldo insuficiente" }
+            dao.atualizar(atual.copy(dinheiro = atual.dinheiro - valor))
+        }
+    }
+
+    suspend fun adicionarDinheiro(jogadorId: Int, valor: Long): Result<Unit> = safeCall("Falha ao adicionar moedas") {
+        database.withTransaction {
+            val atual = dao.buscar(jogadorId) ?: run {
+                val inicial = novoProgresso(jogadorId, DEFAULT_ORES.first())
+                dao.inserir(inicial)
+                inicial
+            }
+            dao.atualizar(
+                atual.copy(
+                    dinheiro = Math.addExact(atual.dinheiro, valor),
+                    dinheiroTotalGanho = Math.addExact(atual.dinheiroTotalGanho, valor)
+                )
+            )
         }
     }
 }

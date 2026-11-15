@@ -3,6 +3,7 @@ package com.example.minecraftclicker.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.minecraftclicker.data.local.UpgradeEntity
+import com.example.minecraftclicker.data.repository.JogoRepository
 import com.example.minecraftclicker.data.repository.UpgradeRepository
 import com.example.minecraftclicker.model.Player
 import com.example.minecraftclicker.model.UpgradeItem
@@ -21,7 +22,8 @@ data class UpgradesUiState(
 )
 
 class UpgradesViewModel(
-    private val repository: UpgradeRepository
+    private val repository: UpgradeRepository,
+    private val jogoRepository: JogoRepository
 ) : ViewModel() {
 
     companion object {
@@ -66,13 +68,24 @@ class UpgradesViewModel(
         viewModelScope.launch {
             repository.initializeDefaultUpgrades(playerId)
 
-            repository.observeUpgrades(playerId).collect { entities ->
-                val items = buildUpgradeItems(entities)
-                _uiState.update {
-                    it.copy(
-                        upgrades = items,
-                        loading = false
-                    )
+            launch {
+                repository.observeUpgrades(playerId).collect { entities ->
+                    val items = buildUpgradeItems(entities)
+                    _uiState.update {
+                        it.copy(
+                            upgrades = items,
+                            loading = false
+                        )
+                    }
+                }
+            }
+
+            launch {
+                jogoRepository.observarProgresso(playerId).collect { result ->
+                    result.onSuccess { progresso ->
+                        val moedas = progresso?.dinheiro ?: 0L
+                        _uiState.update { it.copy(coins = moedas) }
+                    }
                 }
             }
         }
@@ -90,18 +103,17 @@ class UpgradesViewModel(
         val cost = item.nextLevelCost
 
         viewModelScope.launch {
-            repository.incrementLevel(playerId, type)
+            jogoRepository.debitarDinheiro(playerId, cost)
                 .onSuccess {
-                    _uiState.update { state ->
-                        state.copy(coins = state.coins - cost)
-                    }
+                    repository.incrementLevel(playerId, type)
                 }
         }
     }
 
     fun adicionarMoedasTeste(quantidade: Long = 200L) {
-        _uiState.update { state ->
-            state.copy(coins = state.coins + quantidade)
+        val playerId = _uiState.value.currentPlayerId ?: return
+        viewModelScope.launch {
+            jogoRepository.adicionarDinheiro(playerId, quantidade)
         }
     }
 
