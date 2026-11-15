@@ -5,7 +5,10 @@ import android.app.Application
 import com.example.minecraftclicker.data.local.AppDatabase
 import com.example.minecraftclicker.data.repository.UpgradeRepository
 import com.example.minecraftclicker.data.repository.UserRepository
+import com.example.minecraftclicker.data.repository.JogoRepository
+import com.example.minecraftclicker.data.repository.MinerioRepository
 import com.google.firebase.FirebaseApp
+import com.google.firebase.firestore.FirebaseFirestore
 
 class MinecraftClickerApplication : Application() {
 
@@ -15,6 +18,14 @@ class MinecraftClickerApplication : Application() {
 
     val userRepository by lazy {
         UserRepository(database.userDao())
+    }
+
+    val jogoRepository by lazy { JogoRepository(database) }
+
+    val minerioRepository by lazy {
+        MinerioRepository(
+            if (FirebaseApp.getApps(this).isEmpty()) null else FirebaseFirestore.getInstance()
+        )
     }
 
     val upgradeDao by lazy {
