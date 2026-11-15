@@ -40,6 +40,7 @@ import com.example.minecraftclicker.model.Tab
 import com.example.minecraftclicker.viewmodel.AppViewModelFactory
 import com.example.minecraftclicker.viewmodel.AuthUiState
 import com.example.minecraftclicker.viewmodel.AuthViewModel
+import com.example.minecraftclicker.viewmodel.AdminViewModel
 import com.example.minecraftclicker.viewmodel.GameViewModel
 import com.example.minecraftclicker.viewmodel.RankingViewModel
 import com.example.minecraftclicker.ui.stats.StatsScreen
@@ -157,7 +158,8 @@ fun App() {
             }
             composable(Tab.ADMIN.route) {
                 if (authUiState.isAdmin) {
-                    AdminScreen(modifier = contentModifier)
+                    val adminViewModel: AdminViewModel = viewModel(factory = factory)
+                    AdminScreen(viewModel = adminViewModel, modifier = contentModifier)
                 } else {
                     AccessDenied(modifier = contentModifier)
                 }
